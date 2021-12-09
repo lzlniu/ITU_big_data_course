@@ -1,0 +1,13 @@
+name: assignment3
+channels:
+  - defaults
+dependencies:
+  - scikit-learn>0.24
+  - numpy>1.19
+  - pandas>1.2
+  - pip>21
+  - python=3.9
+  - pip:
+    - mlflow
+    - influxdb>5
+    - matplotlib>3
