@@ -9,5 +9,4 @@ dependencies:
   - python=3.9
   - pip:
     - mlflow
-    - influxdb>5
     - matplotlib>3
