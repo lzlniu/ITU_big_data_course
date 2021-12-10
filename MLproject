@@ -3,7 +3,8 @@ name: assignment3
 conda_env: assignment3.yaml
 
 entry_points:
-	main:
-		parameters:
-			xxx: {type: int, default: 5}
-		command: "python assignment3.py {xxx}"
+  main:
+    parameters:
+      para1: {type: int, default: 5}
+      para2: {type: int, default: 2}
+    command: "python assignment3.py {para1} {para2}"
