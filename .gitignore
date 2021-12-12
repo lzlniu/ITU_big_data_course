@@ -5,5 +5,5 @@ config*
 test*
 
 # output
-mlflow
+mlruns
 results.*
