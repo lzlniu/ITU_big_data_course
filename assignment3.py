@@ -18,7 +18,7 @@ pd.options.mode.chained_assignment = None  # default='warn'
 
 num_of_splits = int(sys.argv[1]) if len(sys.argv) > 1 else 5
 num_of_degree = int(sys.argv[2]) if len(sys.argv) > 2 else 2
-sel_of_model = sys.argv[3] if len(sys.argv) > 3 else 'LinReg'
+sel_of_model = sys.argv[3] if len(sys.argv) > 3 else 'LR'
 
 discrete_props = ['Direction'] # demonstrate which column of data is discrete feature (indicating others are linear) 
 
@@ -92,11 +92,11 @@ with mlflow.start_run():
     df = fillnan(df, 'Total')
     df = fillnan(df, 'Direction')
     df = fillnan(df, 'Speed')
-    if (sel_of_model == 'RFReg'):
+    if (sel_of_model == 'RFR'):
         pipeline = Pipeline([
             ("WindDirectCoder", WindDirectCoder()), # add this Direction feature is good for the model in general
             ("Poly", PolynomialFeatures(degree = num_of_degree)), # add polynomial features, num_of_degree is on the top, default 2
-            ("RFReg", RandomForestRegressor()), # use Random Forest model
+            ("RFR", RandomForestRegressor()), # use Random Forest model
         ])
     elif (sel_of_model == 'SVR'):
         pipeline = Pipeline([
@@ -110,7 +110,7 @@ with mlflow.start_run():
             #("HourAdder", HourAdder()), # commit it because bad performance
             ("WindDirectCoder", WindDirectCoder()),
             ("Poly", PolynomialFeatures(degree = num_of_degree)),
-            ("LinReg", LinearRegression()), # use Linear Regression model
+            ("LR", LinearRegression()), # use Linear Regression model
         ])
     metrics = [
             # name, func, scores(which store in [])
