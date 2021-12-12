@@ -1,0 +1,15 @@
+artifact_uri: file:///home/lzlniu/ITU_big_data_course/mlruns/0/a4995baa5df144089937118cf72884b5/artifacts
+end_time: 1639332614929
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+name: ''
+run_id: a4995baa5df144089937118cf72884b5
+run_uuid: a4995baa5df144089937118cf72884b5
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1639332597388
+status: 3
+tags: []
+user_id: lzlniu

@@ -5,6 +5,7 @@ conda_env: assignment3.yaml
 entry_points:
   main:
     parameters:
-      splits: {type: int, default: 5}
-      degree: {type: int, default: 2}
-    command: "python assignment3.py {splits} {degree}"
+      splits: {type: int, default: 100}
+      degree: {type: int, default: 100}
+      model: {type: string, default: Aaaa}
+    command: "python assignment3.py {splits} {degree} {model}"

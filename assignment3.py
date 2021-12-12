@@ -18,6 +18,7 @@ pd.options.mode.chained_assignment = None  # default='warn'
 
 num_of_splits = int(sys.argv[1]) if len(sys.argv) > 1 else 5
 num_of_degree = int(sys.argv[2]) if len(sys.argv) > 2 else 2
+sel_of_model = sys.argv[3] if len(sys.argv) > 3 else 'LinReg'
 
 discrete_props = ['Direction'] # demonstrate which column of data is discrete feature (indicating others are linear) 
 
@@ -81,30 +82,36 @@ class WindDirectCoder():
 #mlflow.set_experiment("zeli - power generation prediction experiment")
 
 # Start a run
-with mlflow.start_run(run_name="RFs5d2"):
+with mlflow.start_run():
     # Load data
     df = pd.read_json("/home/lzlniu/ITU_big_data_course/dataset.json", orient="split")
     # Handle missing data (Fill nan with fillnan function)
     dfTmean = df.groupby(pd.Grouper(freq='1H')).mean()
-    #dfTmean = dfTmean[dfTmean['Lead_hours']==1]
+    #dfTmean = dfTmean[dfTmean['Lead_hours']==1] # further reduce data
     df = dfTmean.join(df['Direction'])
-    #df = df[['Total','Direction','Speed']]
     df = fillnan(df, 'Total')
     df = fillnan(df, 'Direction')
     df = fillnan(df, 'Speed')
-    df=fillnan(df,'Total')
-    df=fillnan(df,'Direction')
-    df=fillnan(df,'Speed')
-    pipeline = Pipeline([
-        #("FillNaN", FillNaN()), # fill the row which its column without Speed or Direction
-        #("HourAdder", HourAdder()), # commit it because bad performance
-        ("WindDirectCoder", WindDirectCoder()), # add this Direction feature is good for the model in general
-        ("Poly", PolynomialFeatures(degree = num_of_degree)), # add polynomial features, num_of_degree is on the top, default 2
-        ("LinReg", LinearRegression()), # use Linear Regression model
-        #("RFReg", RandomForestRegressor()), # use Random Forest model
-        #("SVR", SVR(gamma=0.1, C=20.0)), # use Support Vector Machine model, which have the best performance
-        #("SVR", SVR()),
-    ])
+    if (sel_of_model == 'RFReg'):
+        pipeline = Pipeline([
+            ("WindDirectCoder", WindDirectCoder()), # add this Direction feature is good for the model in general
+            ("Poly", PolynomialFeatures(degree = num_of_degree)), # add polynomial features, num_of_degree is on the top, default 2
+            ("RFReg", RandomForestRegressor()), # use Random Forest model
+        ])
+    elif (sel_of_model == 'SVR'):
+        pipeline = Pipeline([
+            ("WindDirectCoder", WindDirectCoder()),
+            ("Poly", PolynomialFeatures(degree = num_of_degree)),
+            ("SVR", SVR()), # use Support-Vector Machine model
+        ])
+    else:
+        pipeline = Pipeline([
+            #("FillNaN", FillNaN()), # fill the row which its column without Speed or Direction
+            #("HourAdder", HourAdder()), # commit it because bad performance
+            ("WindDirectCoder", WindDirectCoder()),
+            ("Poly", PolynomialFeatures(degree = num_of_degree)),
+            ("LinReg", LinearRegression()), # use Linear Regression model
+        ])
     metrics = [
             # name, func, scores(which store in [])
             ("Evar", explained_variance_score, []),
@@ -115,12 +122,11 @@ with mlflow.start_run(run_name="RFs5d2"):
         ]
     X = df[["Speed","Direction"]]
     y = df["Total"]
-    number_of_splits = num_of_splits # on the top, default 5
     mlflow.log_param('splits', num_of_splits)
     mlflow.log_param('degree', num_of_degree)
     mlflow.log_param('model', pipeline.steps[-1][0])
     # Fit the pipeline
-    for train, test in TimeSeriesSplit(number_of_splits).split(X,y):
+    for train, test in TimeSeriesSplit(num_of_splits).split(X,y):
         pipeline.fit(X.iloc[train],y.iloc[train])
         predictions = pipeline.predict(X.iloc[test])
         truth = y.iloc[test]
@@ -134,10 +140,10 @@ with mlflow.start_run(run_name="RFs5d2"):
             scores.append(score)
     # Log a summary of the metrics
     for name, _, scores in metrics:
-        # Note: Here we just log the mean of the scores.
-        # Are there other summarizations that could be interesting?
-        mean_score = np.mean(scores)
-        sum_log_score = np.log(np.sum(scores))
+        mean_score = np.mean(scores) # mean of all scores
+        last_score = scores[-1] # only choose the last score
+        #sum_log_score = np.log(np.sum(scores)) # sum up scores and log
         mlflow.log_metric(f"mean_{name}", mean_score)
-        mlflow.log_metric(f"sum_log_{name}", sum_log_score)
+        mlflow.log_metric(f"last_{name}", last_score)
+        #mlflow.log_metric(f"sum_log_{name}", sum_log_score)
 

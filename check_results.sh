@@ -1,5 +1,5 @@
 #!/bin/bash
-printf "model & splits & degree & mEvar & mMAE & mMSE & mMax & mR2 & slEvar & slMAE & slMSE & slMax & slR2\n"
+printf "model & splits & degree & lEvar & lMAE & lMSE & lMax & lR2 & mEvar & mMAE & mMSE & mMax & mR2\\\\\\\\\n"
 for i in $(ls ./mlruns/0/); do
 	if [ -d ./mlruns/0/$i ]; then
 		#printf " & "
@@ -12,6 +12,6 @@ for i in $(ls ./mlruns/0/); do
 			printf " & "
 			awk '{printf "%.2f",$2}' mlruns/0/$i/metrics/$j
 		done
-		printf "\n"
+		printf "\\\\\\\\\n"
 	fi
 done
